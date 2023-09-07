@@ -1,161 +1,191 @@
--- https://github.com/VonHeikemen/nvim-starter/tree/xx-mason
+-- What I want from NeoVim
+-- ( ) Vim Set Options (Tabs etc)
+-- ( ) Vim Native Keybinds
+-- (-) Plugin Manager
+-- (-) Tree Sitter (Syntax Highlighting)
+-- (-) Commenter (Plugin)
+-- (-) Hrshit Completion Engine?
+-- (*) LSP (have full section later on)
+-- (-) Colorscheme randomizer
+-- ( ) Fuzzy Finder (find file, find word)
+-- ( ) Mason LSP Config
+-- ( ) Plugin Maps
+-- ( ) Fold Functions
+-- ( ) Scroll (Plugin)
+-- ( ) Debugger (Plugin)
+-- ( ) Bracket Completion (Maybe not worth it?)
+-- ( ) Auto Code Format on Save (INBUILT IN VIM =)
+--
+
+--
+-- Notes
+--    
+--    Some of the autocomplete doesn't work
+--
+--    No autocomplete for vim globals
+--
+
+vim.g.mapleader = " " -- set map leader before plugin setup
 
 local lazy = {}
-
 function lazy.install(path)
-  if not vim.loop.fs_stat(path) then
-    print('Installing lazy.nvim....')
-    vim.fn.system({
-      'git',
-      'clone',
-      '--filter=blob:none',
-      'https://github.com/folke/lazy.nvim.git',
-      '--branch=stable', -- latest stable release
-      path,
-    })
-  end
+   if not vim.loop.fs_stat(path) then
+      print('Installing lazy.nvim....')
+      vim.fn.system({
+         'git',
+         'clone',
+         '--filter=blob:none',
+         'https://github.com/folke/lazy.nvim.git',
+         '--branch=stable', -- latest stable release
+         path,
+      })
+   end
 end
 
-function lazy.setup(plugins)
-  -- You can "comment out" the line below after lazy.nvim is installed
-  lazy.install(lazy.path)
+function lazy.setup_with_plugins(plugins)
+   -- you can "comment out" the line below after lazy.nvim is installed
+   lazy.install(lazy.path)
 
-  vim.opt.rtp:prepend(lazy.path)
-  require('lazy').setup(plugins, lazy.opts)
+   vim.opt.rtp:prepend(lazy.path)
+   require('lazy').setup(plugins, lazy.opts)
 end
+
 
 lazy.path = vim.fn.stdpath('data') .. '/lazy/lazy.nvim'
 lazy.opts = {}
 
-lazy.setup({
-  {'neovim/nvim-lspconfig'},             -- LSP configurations
-  {                                      -- Installer for external tools
-    'williamboman/mason.nvim',
-    build = function()
-      pcall(vim.cmd, 'MasonUpdate')
-    end,
-  },
-  {'williamboman/mason-lspconfig.nvim'}, -- mason extension for lspconfig
-  {'hrsh7th/nvim-cmp'},                  -- Autocomplete engine
-  {'hrsh7th/cmp-nvim-lsp'},              -- Completion source for LSP
-  {'L3MON4D3/LuaSnip'},                  -- Snippet engine
+print('Enjoy Rishabh!')
+lazy.setup_with_plugins({
+   -- Tree Sitter
+   {'nvim-treesitter/nvim-treesitter', config = true}, 
+
+   -- Comment Engine
+   {'numToStr/Comment.nvim', lazy = false}, 
+
+   -- Snippet engine ( + needed for LSP, Cmp )
+   {'L3MON4D3/LuaSnip'},                  
+
+   -- Autocomplete engine
+   {'hrsh7th/nvim-cmp'},                  
+   -- Completion source for LSP
+   {'hrsh7th/cmp-nvim-lsp'},              
 
 
-  -- Rishabh Plugins
-  {'karb94/neoscroll.nvim'},             -- Smooth Scroll
-  {'mbbill/undotree'},			 -- Undo Tree
+   -- Themes
+   -- {'morhetz/gruvbox'},
+   -- {'sainnhe/everforest'},
+   -- {'shaunsingh/nord.nvim'},
 
-
-  -- Telescope for fuzzy finding
-    {
-    'nvim-telescope/telescope.nvim', tag = '0.1.1',
-      dependencies = { 'nvim-lua/plenary.nvim' }
-    },
-
-  -- Treesitter for highlight
-  {'nvim-treesitter/nvim-treesitter',
-    config = function()
-      pcall(vim.cmd, 'TSUpdate')
-  end,
-  }
-    
-
+   -- LSP Configs from Neovim
+   {'neovim/nvim-lspconfig'},
 })
 
-vim.cmd.colorscheme('habamax')
+-- ========================== PLUGIN SETUPS ==============================
 
-local cmp = require('cmp')
-local luasnip = require('luasnip')
+function cmp_setup()
+   local cmp = require('cmp')
+   local luasnip = require('luasnip')
 
+   cmp.setup({
+      sources = {
+         {name = 'nvim_lsp'},
+         {name = 'luasnip'},
+         -- {name = 'buffer'},
+      },
+      mapping = cmp.mapping.preset.insert({
+         ['<C-b>'] = cmp.mapping.scroll_docs(-4),
+         ['<C-f>'] = cmp.mapping.scroll_docs(4),
+         ['<C-Space>'] = cmp.mapping.complete(),
+         ['<C-e>'] = cmp.mapping.abort(),
 
-cmp.setup({
-  sources = {
-    {name = 'nvim_lsp'},
-  },
-  mapping = cmp.mapping.preset.insert({
-    ['<C-Space>'] = cmp.mapping.complete(),
-    ['<C-u>'] = cmp.mapping.scroll_docs(-4),
-    ['<C-d>'] = cmp.mapping.scroll_docs(4),
-  }),
-  snippet = {
-    expand = function(args)
-      luasnip.lsp_expand(args.body)
-    end
-  },
-})
+         -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
+         ['<CR>'] = cmp.mapping.confirm({ select = true }), 
+      }),
 
-local lsp_cmds = vim.api.nvim_create_augroup('lsp_cmds', {clear = true})
-
-vim.api.nvim_create_autocmd('LspAttach', {
-  group = lsp_cmds,
-  desc = 'LSP actions',
-  callback = function()
-    local bufmap = function(mode, lhs, rhs)
-      vim.keymap.set(mode, lhs, rhs, {buffer = true})
-    end
-
-    bufmap('n', 'K', '<cmd>lua vim.lsp.buf.hover()<cr>')
-    bufmap('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<cr>')
-    bufmap('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<cr>')
-    bufmap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<cr>')
-    bufmap('n', 'go', '<cmd>lua vim.lsp.buf.type_definition()<cr>')
-    bufmap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<cr>')
-    bufmap('n', 'gs', '<cmd>lua vim.lsp.buf.signature_help()<cr>')
-    bufmap('n', '<F2>', '<cmd>lua vim.lsp.buf.rename()<cr>')
-    bufmap({'n', 'x'}, '<F3>', '<cmd>lua vim.lsp.buf.format({async = true})<cr>')
-    bufmap('n', 'gl', '<cmd>lua vim.diagnostic.open_float()<cr>')
-    bufmap('n', '[d', '<cmd>lua vim.diagnostic.goto_prev()<cr>')
-    bufmap('n', ']d', '<cmd>lua vim.diagnostic.goto_next()<cr>')
-
-    bufmap('n', '<F4>', '<cmd>lua vim.lsp.buf.code_action()<cr>')
-    bufmap('x', '<F4>', '<cmd>lua vim.lsp.buf.code_action()<cr>')
-
-    -- if using Neovim v0.8 uncomment this
-    -- bufmap('x', '<F4>', '<cmd>lua vim.lsp.buf.range_code_action()<cr>')
-  end
-})
-
-local lspconfig = require('lspconfig')
-local lsp_defaults = lspconfig.util.default_config
-
-lsp_defaults.capabilities = vim.tbl_deep_extend(
-  'force',
-  lsp_defaults.capabilities,
-  require('cmp_nvim_lsp').default_capabilities()
-)
-
-require('mason').setup({})
-require('mason-lspconfig').setup({
-  ensure_installed = {
-    'gopls',
-    'lua_ls'
-  }
-})
-
-require('mason-lspconfig').setup_handlers({
-  function(server)
-    lspconfig[server].setup({})
-  end,
-  ['tsserver'] = function()
-    lspconfig.tsserver.setup({
-      settings = {
-        completions = {
-          completeFunctionCalls = true
-        }
+      snippet = {
+         expand = function(args)
+            luasnip.lsp_expand(args.body)
+         end
       }
-    })
-  end
-})
+   })
+end
+cmp_setup()
 
-
--- My config starts here
-require('rish.remap')
-require('rish.set')
-
-
-require('rish/plugin.neoscroll')
-require('rish/plugin.telescope')
-require('rish/plugin.undotree')
+-- LIFESAVER
+local function comment_setup()
+   require("Comment").setup()
+end
+comment_setup()
 
 
 
+local function lua_lsp_setup()
+   require'lspconfig'.lua_ls.setup {
+      on_init = function(client)
+         local path = client.workspace_folders[1].name
+         if not vim.loop.fs_stat(path..'/.luarc.json') and not vim.loop.fs_stat(path..'/.luarc.jsonc') then
+            client.config.settings = vim.tbl_deep_extend('force', client.config.settings, {
+               Lua = {
+                  runtime = {
+                     -- Tell the language server which version of Lua you're using
+                     -- (most likely LuaJIT in the case of Neovim)
+                     version = 'LuaJIT'
+                  },
+                  -- Make the server aware of Neovim runtime files
+                  workspace = {
+                     checkThirdParty = false,
+                     library = {
+                        vim.env.VIMRUNTIME
+                        -- "${3rd}/luv/library"
+                        -- "${3rd}/busted/library",
+                     }
+                     -- or pull in all of 'runtimepath'. NOTE: this is a lot slower
+                     -- library = vim.api.nvim_get_runtime_file("", true)
+                  },
+                  diagnostics = {
+                     -- Get the language server to recognize the `vim` global
+                     globals = {'vim'},
+                  },
+               }
+            })
+            client.notify("workspace/didChangeConfiguration", { settings = client.config.settings })
+         end
+         return true
+      end
+   }
+end
+lua_lsp_setup()
+
+local night_pallette = {
+   "habamax",
+   "lunaperche",
+   "gruvbox",
+   -- "everforest"
+}
+
+function ColorMyPencils()
+   local themeCount = #night_pallette
+
+   math.randomseed(os.time())
+   local i = math.random(1, themeCount) -- replace w len
+
+   local theme = night_pallette[i]
+   vim.cmd.colorscheme(theme)
+end
+
+
+
+-- ========================== SETTING CHANGES ==============================
+
+vim.opt.rnu = true
+
+vim.opt.tabstop = 3
+vim.opt.expandtab = true
+vim.opt.shiftwidth = 3
+
+vim.opt.hlsearch = false
+vim.opt.incsearch = true
+
+vim.opt.cc = "80"
+
+vim.opt.wrap = false
