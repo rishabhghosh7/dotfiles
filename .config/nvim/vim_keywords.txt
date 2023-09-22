@@ -1,0 +1,8 @@
+help
+windows
+buffers
+augroups
+autocmds
+registers
+:g command
+...and general stack-overflow magic
