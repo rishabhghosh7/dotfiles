@@ -1,3 +1,46 @@
+-- What I want from NeoVim
+-- ( ) Vim Set Options (Tabs etc)
+-- ( ) Vim Native Keybinds
+-- (-) Plugin Manager
+-- (-) Tree Sitter (Syntax Highlighting)
+-- (-) Commenter (Plugin)
+-- (-) Hrshit Completion Engine?
+-- (*) LSP (have full section later on)
+-- (-) Colorscheme randomizer
+-- ( ) Fuzzy Finder (find file, find word)
+-- ( ) Mason LSP Config
+-- ( ) Plugin Maps
+-- ( ) Fold Functions
+-- ( ) Scroll (Plugin)
+-- ( ) Debugger (Plugin)
+-- ( ) Bracket Completion (Maybe not worth it?)
+-- ( ) Auto Code Format on Save (INBUILT IN VIM =)
+--
+
+--
+-- Notes
+--    
+--    Some of the autocomplete doesn't work
+--
+--    No autocomplete for vim globals
+--
+--
+
+--
+-- TODO 
+--    
+--    Define mappings for LSP
+--    - Tabs, Windows
+--
+--    Add fuzzy finding / dir traversal support
+--
+--    Get a functional python environment (LSP)
+--
+--    Get a functional go environment (LSP)
+--    - GRPC support
+--
+--
+
 vim.g.mapleader = " " -- set map leader before plugin setup
 
 local lazy = {}
