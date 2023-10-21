@@ -1,5 +1,5 @@
 -- What I want from NeoVim
--- ( ) Vim Set Options (Tabs etc)
+-- (-) Vim Set Options (Tabs etc)
 -- ( ) Vim Native Keybinds
 -- (-) Plugin Manager
 -- (-) Tree Sitter (Syntax Highlighting)
@@ -7,13 +7,13 @@
 -- (-) Hrshit Completion Engine?
 -- (*) LSP (have full section later on)
 -- (-) Colorscheme randomizer
+-- (-) Bracket Completion (Maybe not worth it?)
 -- ( ) Fuzzy Finder (find file, find word)
 -- ( ) Mason LSP Config
 -- ( ) Plugin Maps
 -- ( ) Fold Functions
 -- ( ) Scroll (Plugin)
 -- ( ) Debugger (Plugin)
--- ( ) Bracket Completion (Maybe not worth it?)
 -- ( ) Auto Code Format on Save (INBUILT IN VIM =)
 --
 
@@ -85,6 +85,8 @@ local pluginStore = {
 
    -- Comment Engine (LIFESAVER)
    {'numToStr/Comment.nvim', lazy = false},
+   -- AC brackets -> save me that 1 extra keystroke
+   {'jiangmiao/auto-pairs'},
 
    -- Snippet engine ( + needed for LSP, Cmp )
    {'L3MON4D3/LuaSnip'},
@@ -128,8 +130,6 @@ local pluginStore = {
       end,
    },
 
-   -- AC brackets -> save me that 1 extra keystroke
-   {'jiangmiao/auto-pairs'},
 
 }
 local night_pallette = {
@@ -186,7 +186,7 @@ local function cmp_setup()
          ['<C-e>'] = cmp.mapping.abort(),
 
          -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
-         ['<CR>'] = cmp.mapping.confirm({ select = true }), 
+         ['<CR>'] = cmp.mapping.confirm({ select = true }),
       }),
 
       snippet = {
@@ -337,9 +337,13 @@ local function mason_setup()
 end
 mason_setup()
 
+local function go_lsp_setup()
+   require'lspconfig'.gopls.setup{}
+end
+go_lsp_setup()
+
 local function python_lsp_setup()
    require'lspconfig'.pyright.setup{}
-   require'lspconfig'.gopls.setup{}
 end
 python_lsp_setup()
 
