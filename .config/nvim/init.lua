@@ -123,10 +123,10 @@ local pluginStore = {
    {
       "folke/which-key.nvim",
       event = "VeryLazy",
-      init = function()
-	 vim.o.timeout = true
-	 vim.o.timeoutlen = 300
-      end,
+  --     init = function()
+	 -- vim.o.timeout = true
+	 -- vim.o.timeoutlen = 300
+  --     end,
    },
 
    -- Detect tabstop and shiftwidth automatically
@@ -179,14 +179,14 @@ local night_pallette = {
    -- Extreme Night Mode
    "habamax",
 
-   -- Black BG, comment highlight
-   -- "lunaperche",
+   -- Black BG, neon comments
+   "lunaperche",
 
    -- Pleasant Gruvbox Cousin
    "everforest",
 
    -- Classic Bleu De Chanel theme
-   -- "nord",
+   "nord",
 
    -- Neo VSCode colors
    "catppuccin",
