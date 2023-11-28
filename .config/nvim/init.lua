@@ -8,13 +8,12 @@
 -- (*) LSP (have full section later on)
 -- (-) Colorscheme randomizer
 -- (-) Bracket Completion (Maybe not worth it?)
+-- (-) Scroll (Plugin)
 -- ( ) Fuzzy Finder (find file, find word)
 -- ( ) Mason LSP Config
 -- ( ) Plugin Maps
 -- ( ) Fold Functions
--- ( ) Scroll (Plugin)
 -- ( ) Debugger (Plugin)
--- ( ) Auto Code Format on Save (INBUILT IN VIM =)
 --
 
 --
@@ -28,9 +27,6 @@
 --    
 --    Put plugin setups in after/ dir
 --
---    Define mappings for LSP
---    - Windows
---
 --    Add fuzzy finding / dir traversal support
 --
 --    Get a functional python environment (LSP)
@@ -40,8 +36,12 @@
 --    Get a functional go environment (LSP)
 --    - Basic Lang (X)
 --    - Protobuf support
+--   
+--    Understand how lazy works:
+--	 - how to optimize, how to lock deps
 --
---
+--    Also, how
+--	 - LuaSnips, Cmp 
 
 vim.g.mapleader = " " -- set map leader before plugin setup
 
