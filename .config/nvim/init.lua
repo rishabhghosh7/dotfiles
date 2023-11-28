@@ -386,8 +386,7 @@ end
 python_lsp_setup()
 
 
-local function lsp_remaps_setup()
-
+local function lsp_keymaps_setup()
    local lsp_cmds = vim.api.nvim_create_augroup('lsp_cmds', {clear = true})
    vim.api.nvim_create_autocmd('LspAttach', {
       group = lsp_cmds,
@@ -419,10 +418,10 @@ local function lsp_remaps_setup()
    })
 
 end
-lsp_remaps_setup()
+lsp_keymaps_setup()
 
 -- rose pine setup
-local function rose_pine_setup()
+local function rose_pine_theme_setup()
    require('rose-pine').setup({ -- copied directly from theme's GH
    --- @usage 'auto'|'main'|'moon'|'dawn'
    variant = 'moon',
@@ -478,9 +477,9 @@ local function rose_pine_setup()
    }
 })
 end
-rose_pine_setup()
+rose_pine_theme_setup()
 
-local function catppuccin_setup()
+local function catppuccin_theme_setup()
    local catppuccin = require("catppuccin")
 
    catppuccin.setup({
@@ -506,7 +505,7 @@ local function catppuccin_setup()
       },
    })
 end
-catppuccin_setup()
+catppuccin_theme_setup()
 
 -- ========================== SETTING CHANGES ==============================
 
@@ -540,8 +539,12 @@ vim.o.clipboard = 'unnamedplus'
 -- Enable break indent
 vim.o.breakindent = true
 
--- Save undo history
+-- Save undo history in specified location
 vim.o.undofile = true
+vim.o.undodir = os.getenv("HOME") .. "/.vim/undodir"
+
+-- Disable swapfiles
+vim.o.swapfile = false
 
 -- Case-insensitive searching UNLESS \C or capital in search
 vim.o.ignorecase = true
@@ -569,11 +572,26 @@ vim.opt.wrap = false
 -- Randomly pick a theme
 vim.keymap.set("n", "<leader>th", ColorMyPencils)
 
+-- Set the cursor
+vim.opt.guicursor = ""
+
+-- Indent options
+vim.opt.autoindent = true
+vim.opt.smartindent = true
+
+-- Disable backups
+vim.opt.backup = false
+
 -- [[ Setting Keymaps ]]
 
--- quick change buffers
+-- File Explorer
+vim.keymap.set("n", "<leader>pv", vim.cmd.Ex)
+
+-- Change dir to current buffer's (Thanks Reddit)
+vim.keymap.set("n", "<leader>cd", ":cd %:p:h<CR>")
+
+-- quick peek buffers
 vim.keymap.set("n", "<Leader>b", ":buffers<CR>:buffer<Space>")
-vim.keymap.set("n", "<C-b>", ":buffers<CR>")
 
 -- replace word and repeat '.' (case insensitive)
 vim.keymap.set("n", "c*", "*``cgn")
