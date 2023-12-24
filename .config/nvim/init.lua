@@ -585,7 +585,7 @@ vim.opt.backup = false
 -- [[ Setting Keymaps ]]
 
 -- File Explorer
-vim.keymap.set("n", "<leader>pv", vim.cmd.Ex)
+vim.keymap.set("n", "<leader>sf", vim.cmd.Ex)
 
 -- Change dir to current buffer's (Thanks Reddit)
 vim.keymap.set("n", "<leader>cd", ":cd %:p:h<CR>")
@@ -597,6 +597,7 @@ vim.keymap.set("n", "<Leader>b", ":buffers<CR>:buffer<Space>")
 vim.keymap.set("n", "c*", "*``cgn")
 -- vim.keymap.set("n", "c#", "/\<<C-R>=expand('<cword>')<CR>\>\C<CR>``cgN")
 
+
 -- [[ Highlight on yank ]]
 -- See `:help vim.highlight.on_yank()`
 local highlight_group = vim.api.nvim_create_augroup('YankHighlight', { clear = true })
@@ -607,3 +608,8 @@ vim.api.nvim_create_autocmd('TextYankPost', {
    group = highlight_group,
    pattern = '*',
 })
+
+
+-- get out of insert mode quickly (don't write jk
+vim.keymap.set("i", "jk", "<Esc>")
+
