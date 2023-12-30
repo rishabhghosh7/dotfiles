@@ -85,6 +85,7 @@ local pluginStore = {
 
    -- Comment Engine (LIFESAVER)
    {'numToStr/Comment.nvim', lazy = false},
+
    -- AC brackets -> save me that 1 extra keystroke
    {'jiangmiao/auto-pairs'},
 
@@ -129,8 +130,14 @@ local pluginStore = {
   --     end,
    },
 
+   {'mfussenegger/nvim-dap'},
+   {'leoluz/nvim-dap-go' },
+   {'theHamsta/nvim-dap-virtual-text'},
+   {'rcarriga/nvim-dap-ui'},
+
+   -- !!! NOT SURE about the ones below
+
    -- Detect tabstop and shiftwidth automatically
-   {'tpope/vim-sleuth'},
    {
       -- Adds git related signs to the gutter, as well as utilities for managing changes
       'lewis6991/gitsigns.nvim',
@@ -380,6 +387,12 @@ local function go_lsp_setup()
 end
 go_lsp_setup()
 
+local function go_dap_setup()
+   require('dap-go').setup()
+   require('dapui').setup()
+end
+go_dap_setup()
+
 local function python_lsp_setup()
    require'lspconfig'.pyright.setup{}
 end
@@ -419,6 +432,9 @@ local function lsp_keymaps_setup()
 
 end
 lsp_keymaps_setup()
+
+
+
 
 -- rose pine setup
 local function rose_pine_theme_setup()
@@ -598,7 +614,7 @@ vim.keymap.set("n", "c*", "*``cgn")
 -- vim.keymap.set("n", "c#", "/\<<C-R>=expand('<cword>')<CR>\>\C<CR>``cgN")
 
 
--- [[ Highlight on yank ]]
+-- [[Show me what I just yanked]]
 -- See `:help vim.highlight.on_yank()`
 local highlight_group = vim.api.nvim_create_augroup('YankHighlight', { clear = true })
 vim.api.nvim_create_autocmd('TextYankPost', {
@@ -613,3 +629,11 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 -- get out of insert mode quickly (don't write jk
 vim.keymap.set("i", "jk", "<Esc>")
 
+-- I need the opposite of this (keep losing my paste register)
+vim.keymap.set("n", "<leader>p", "\"_dP")
+
+-- Debugger
+vim.keymap.set("n", "<leader>dt", ":DapUiToggle<CR>")
+vim.keymap.set("n", "<leader>db", ":DapToggleBreakpoint<CR>")
+vim.keymap.set("n", "<leader>dc", ":DapContinue<CR>")
+vim.keymap.set("n", "<leader>dr", ":lua require('dapui').open({reset=true})<CR>")
