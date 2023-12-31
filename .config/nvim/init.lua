@@ -130,10 +130,18 @@ local pluginStore = {
   --     end,
    },
 
+   -- Debugging in NVIM!! (Go)
    {'mfussenegger/nvim-dap'},
    {'leoluz/nvim-dap-go' },
    {'theHamsta/nvim-dap-virtual-text'},
    {'rcarriga/nvim-dap-ui'},
+
+   -- Telescope (fuzzy finder)
+   {
+      'nvim-telescope/telescope.nvim',
+      tag = '0.1.5',
+      dependencies = { 'nvim-lua/plenary.nvim' }
+   },
 
    -- !!! NOT SURE about the ones below
 
@@ -323,6 +331,16 @@ cmp_setup()
 --    }
 -- end
 -- cmp_setup_2()
+
+local function ts_setup()
+   require'nvim-treesitter.configs'.setup {
+      ensure_installed = "go",
+      highlight = {
+         enable = true
+      },
+   }
+end
+ts_setup()
 
 local function comment_setup()
    require("Comment").setup()
@@ -525,7 +543,8 @@ catppuccin_theme_setup()
 
 -- ========================== SETTING CHANGES ==============================
 
-vim.cmd(':colorscheme gruvbox')
+-- vim.cmd.colorscheme("catppuccin")
+-- vim.cmd(':colorscheme ')
 
 -- Default to relative line numbering
 vim.opt.rnu = true
@@ -637,3 +656,10 @@ vim.keymap.set("n", "<leader>dt", ":DapUiToggle<CR>")
 vim.keymap.set("n", "<leader>db", ":DapToggleBreakpoint<CR>")
 vim.keymap.set("n", "<leader>dc", ":DapContinue<CR>")
 vim.keymap.set("n", "<leader>dr", ":lua require('dapui').open({reset=true})<CR>")
+
+-- Telescope
+local telescope_builtin = require('telescope.builtin')
+vim.keymap.set('n', '<leader>ff', telescope_builtin.find_files, {})
+vim.keymap.set('n', '<leader>fg', telescope_builtin.live_grep, {})
+vim.keymap.set('n', '<leader>fb', telescope_builtin.buffers, {})
+vim.keymap.set('n', '<leader>fh', telescope_builtin.help_tags, {})
