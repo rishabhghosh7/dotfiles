@@ -7,13 +7,13 @@
 -- (-) Hrshit Completion Engine?
 -- (*) LSP (have full section later on)
 -- (-) Colorscheme randomizer
--- (-) Bracket Completion (Maybe not worth it?)
+-- (-) Bracket Completion
 -- (-) Scroll (Plugin)
--- ( ) Fuzzy Finder (find file, find word)
--- ( ) Mason LSP Config
--- ( ) Plugin Maps
--- ( ) Fold Functions
--- ( ) Debugger (Plugin)
+-- (-) Debugger (Plugin) [?]
+-- (-) Mason LSP Config
+-- ( ) Fuzzy Finder (find file, find symbol)
+-- ( ) Plugin Maps (always WIP?)
+-- ( ) Fold Functions (Native)
 --
 
 --
@@ -78,10 +78,18 @@ print('Enjoy Rishabh!')
 
 local pluginStore = {
    -- Smooth Scroll
-   {'karb94/neoscroll.nvim'},
+   -- {'karb94/neoscroll.nvim'},
+   {'cskeeters/vim-smooth-scroll'},
+   {"folke/zen-mode.nvim"},
+   {"Shatur/neovim-ayu"},
 
    -- Tree Sitter
-   {'nvim-treesitter/nvim-treesitter', config = true},
+   {
+      'nvim-treesitter/nvim-treesitter',
+      config = true,
+      lazy = true,
+   },
+   {'nvim-treesitter/nvim-treesitter-context'},
 
    -- Comment Engine (LIFESAVER)
    {'numToStr/Comment.nvim', lazy = false},
@@ -113,9 +121,8 @@ local pluginStore = {
    -- Themes
    {'morhetz/gruvbox'},
    {'sainnhe/everforest'},
-   {'shaunsingh/nord.nvim'},
    {'rose-pine/neovim', name = 'rose-pine'},
-   { "catppuccin/nvim", name = "catppuccin", priority = 1000 },
+   { "catppuccin/nvim", name = "catppuccin"},
 
    -- LSP Configs from Neovim
    {'neovim/nvim-lspconfig'},
@@ -185,11 +192,12 @@ local pluginStore = {
       },
    },
 }
+
 local night_pallette = {
    -- General Classic
    -- "gruvbox",
 
-   "rose-pine",
+   -- "rose-pine",
 
    -- Extreme Night Mode
    "habamax",
@@ -200,11 +208,10 @@ local night_pallette = {
    -- Pleasant Gruvbox Cousin
    "everforest",
 
-   -- Classic Bleu De Chanel theme
-   "nord",
+   "ayu",
 
    -- Neo VSCode colors
-   "catppuccin",
+   -- "catppuccin",
 }
 
 function ColorMyPencils()
@@ -228,35 +235,53 @@ local function cmp_setup()
 
    cmp.setup({
       sources = {
-	 {name = 'nvim_lsp'},
-	 {name = 'luasnip'},
-	 {name = 'buffer'},
+         {name = 'nvim_lsp'},
+         {name = 'luasnip'},
+         {name = 'buffer'},
       },
       mapping = cmp.mapping.preset.insert({
-	 ['<C-b>'] = cmp.mapping.scroll_docs(-4),
-	 ['<C-f>'] = cmp.mapping.scroll_docs(4),
-	 ['<C-Space>'] = cmp.mapping.complete(),
-	 ['<C-e>'] = cmp.mapping.abort(),
+         ['<C-b>'] = cmp.mapping.scroll_docs(-4),
+         ['<C-f>'] = cmp.mapping.scroll_docs(4),
+         ['<C-Space>'] = cmp.mapping.complete(),
+         ['<C-e>'] = cmp.mapping.abort(),
 
-	 -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
-	 ['<CR>'] = cmp.mapping.confirm({ select = true }),
+         -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
+         ['<CR>'] = cmp.mapping.confirm({ select = true }),
       }),
 
       snippet = {
-	 expand = function(args)
-	    luasnip.lsp_expand(args.body)
-	 end
+         expand = function(args)
+            luasnip.lsp_expand(args.body)
+         end
       },
 
 
       window = {
-	 completion = cmp.config.window.bordered(),
-	 -- documentation = cmp.config.window.bordered(),
+         completion = cmp.config.window.bordered(),
+         -- documentation = cmp.config.window.bordered(),
       },
    })
 end
 cmp_setup()
 
+local function telescope_setup()
+   require('telescope').setup{
+      defaults = {
+         -- Default configuration for telescope goes here:
+         -- config_key = value,
+         mappings = {
+            i = {
+               -- map actions.which_key to <C-h> (default: <C-/>)
+               -- actions.which_key shows the mappings for your picker,
+               -- e.g. git_{create, delete, ...}_branch for the git_branches picker
+               ["<C-h>"] = "which_key"
+            }
+         }
+      },
+   }
+
+end
+telescope_setup()
 
 -- Kept a fancy cmp just for fun
 
@@ -334,7 +359,6 @@ cmp_setup()
 
 local function ts_setup()
    require'nvim-treesitter.configs'.setup {
-      ensure_installed = "go",
       highlight = {
          enable = true
       },
@@ -347,11 +371,6 @@ local function comment_setup()
 end
 comment_setup()
 
-local function neoscroll_setup()
-   require('neoscroll').setup()
-end
-neoscroll_setup()
-
 local function lua_lsp_setup()
    require'lspconfig'.lua_ls.setup {
       on_init = function(client)
@@ -359,26 +378,26 @@ local function lua_lsp_setup()
 	 if not vim.loop.fs_stat(path..'/.luarc.json') and not vim.loop.fs_stat(path..'/.luarc.jsonc') then
 	    client.config.settings = vim.tbl_deep_extend('force', client.config.settings, {
 	       Lua = {
-		  runtime = {
-		     -- Tell the language server which version of Lua you're using
-		     -- (most likely LuaJIT in the case of Neovim)
-		     version = 'LuaJIT'
-		  },
-		  -- Make the server aware of Neovim runtime files
-		  workspace = {
-		     checkThirdParty = false,
-		     library = {
-			vim.env.VIMRUNTIME
-			-- "${3rd}/luv/library"
-			-- "${3rd}/busted/library",
-		     }
-		     -- or pull in all of 'runtimepath'. NOTE: this is a lot slower
-		     -- library = vim.api.nvim_get_runtime_file("", true)
-		  },
-		  diagnostics = {
-		     -- Get the language server to recognize the `vim` global
-		     globals = {'vim'},
-		  },
+             runtime = {
+                -- Tell the language server which version of Lua you're using
+                -- (most likely LuaJIT in the case of Neovim)
+                version = 'LuaJIT'
+             },
+             -- Make the server aware of Neovim runtime files
+             workspace = {
+                checkThirdParty = false,
+                library = {
+                   vim.env.VIMRUNTIME
+                   -- "${3rd}/luv/library"
+                   -- "${3rd}/busted/library",
+                }
+                -- or pull in all of 'runtimepath'. NOTE: this is a lot slower
+                -- library = vim.api.nvim_get_runtime_file("", true)
+             },
+             diagnostics = {
+                -- Get the language server to recognize the `vim` global
+                globals = {'vim'},
+             },
 	       }
 	    })
 	    client.notify("workspace/didChangeConfiguration", { settings = client.config.settings })
@@ -423,28 +442,28 @@ local function lsp_keymaps_setup()
       group = lsp_cmds,
       desc = 'LSP actions',
       callback = function()
-	 local bufmap = function(mode, lhs, rhs)
-	    vim.keymap.set(mode, lhs, rhs, {buffer = true})
-	 end
+         local bufmap = function(mode, lhs, rhs)
+            vim.keymap.set(mode, lhs, rhs, {buffer = true})
+         end
 
-	 bufmap('n', 'K', '<cmd>lua vim.lsp.buf.hover()<cr>')
-	 bufmap('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<cr>')
-	 bufmap('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<cr>')
-	 bufmap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<cr>')
-	 bufmap('n', 'go', '<cmd>lua vim.lsp.buf.type_definition()<cr>')
-	 bufmap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<cr>')
-	 bufmap('n', 'gs', '<cmd>lua vim.lsp.buf.signature_help()<cr>')
-	 bufmap('n', '<F2>', '<cmd>lua vim.lsp.buf.rename()<cr>')
-	 bufmap({'n', 'x'}, '<F3>', '<cmd>lua vim.lsp.buf.format({async = true})<cr>')
-	 bufmap('n', 'gl', '<cmd>lua vim.diagnostic.open_float()<cr>')
-	 bufmap('n', '[d', '<cmd>lua vim.diagnostic.goto_prev()<cr>')
-	 bufmap('n', ']d', '<cmd>lua vim.diagnostic.goto_next()<cr>')
+         bufmap('n', 'K', '<cmd>lua vim.lsp.buf.hover()<cr>')
+         bufmap('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<cr>')
+         bufmap('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<cr>')
+         bufmap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<cr>')
+         bufmap('n', 'go', '<cmd>lua vim.lsp.buf.type_definition()<cr>')
+         bufmap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<cr>')
+         bufmap('n', 'gs', '<cmd>lua vim.lsp.buf.signature_help()<cr>')
+         bufmap('n', '<F2>', '<cmd>lua vim.lsp.buf.rename()<cr>')
+         bufmap({'n', 'x'}, '<F3>', '<cmd>lua vim.lsp.buf.format({async = true})<cr>')
+         bufmap('n', 'gl', '<cmd>lua vim.diagnostic.open_float()<cr>')
+         bufmap('n', '[d', '<cmd>lua vim.diagnostic.goto_prev()<cr>')
+         bufmap('n', ']d', '<cmd>lua vim.diagnostic.goto_next()<cr>')
 
-	 bufmap('n', '<F4>', '<cmd>lua vim.lsp.buf.code_action()<cr>')
-	 bufmap('x', '<F4>', '<cmd>lua vim.lsp.buf.code_action()<cr>')
+         bufmap('n', '<F4>', '<cmd>lua vim.lsp.buf.code_action()<cr>')
+         bufmap('x', '<F4>', '<cmd>lua vim.lsp.buf.code_action()<cr>')
 
-	 -- if using Neovim v0.8 uncomment this
-	 -- bufmap('x', '<F4>', '<cmd>lua vim.lsp.buf.range_code_action()<cr>')
+         -- if using Neovim v0.8 uncomment this
+         -- bufmap('x', '<F4>', '<cmd>lua vim.lsp.buf.range_code_action()<cr>')
       end
    })
 
@@ -484,12 +503,12 @@ local function rose_pine_theme_setup()
       warn = 'gold',
 
       headings = {
-	 h1 = 'iris',
-	 h2 = 'foam',
-	 h3 = 'rose',
-	 h4 = 'gold',
-	 h5 = 'pine',
-	 h6 = 'foam',
+         h1 = 'iris',
+         h2 = 'foam',
+         h3 = 'rose',
+         h4 = 'gold',
+         h5 = 'pine',
+         h6 = 'foam',
       }
       -- or set all headings at once
       -- headings = 'subtle'
@@ -518,24 +537,24 @@ local function catppuccin_theme_setup()
 
    catppuccin.setup({
       integrations = {
-	 ts_rainbow = true,
+         ts_rainbow = true,
       },
       color_overrides = {
-	 mocha = {
-	    text = "#F4CDE9",
-	    subtext1 = "#DEBAD4",
-	    subtext0 = "#C8A6BE",
-	    overlay2 = "#B293A8",
-	    overlay1 = "#9C7F92",
-	    overlay0 = "#866C7D",
-	    surface2 = "#705867",
-	    surface1 = "#5A4551",
-	    surface0 = "#44313B",
+         mocha = {
+            text = "#F4CDE9",
+            subtext1 = "#DEBAD4",
+            subtext0 = "#C8A6BE",
+            overlay2 = "#B293A8",
+            overlay1 = "#9C7F92",
+            overlay0 = "#866C7D",
+            surface2 = "#705867",
+            surface1 = "#5A4551",
+            surface0 = "#44313B",
 
-	    base = "#352939",
-	    mantle = "#211924",
-	    crust = "#1a1016",
-	 },
+            base = "#352939",
+            mantle = "#211924",
+            crust = "#1a1016",
+         },
       },
    })
 end
@@ -543,8 +562,7 @@ catppuccin_theme_setup()
 
 -- ========================== SETTING CHANGES ==============================
 
--- vim.cmd.colorscheme("catppuccin")
--- vim.cmd(':colorscheme ')
+vim.cmd.colorscheme("lunaperche")
 
 -- Default to relative line numbering
 vim.opt.rnu = true
@@ -650,6 +668,10 @@ vim.keymap.set("i", "jk", "<Esc>")
 
 -- I need the opposite of this (keep losing my paste register)
 vim.keymap.set("n", "<leader>p", "\"_dP")
+
+-- Escape saves current buffer
+vim.keymap.set("i", "<Esc>", "<Esc>:w<CR>")
+vim.keymap.set("n", "<Esc>", "<Esc>:w<CR>")
 
 -- Debugger
 vim.keymap.set("n", "<leader>dt", ":DapUiToggle<CR>")
