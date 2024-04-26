@@ -9,25 +9,20 @@
 -- (-) Colorscheme randomizer
 -- (-) Bracket Completion
 -- (-) Scroll (Plugin)
--- (-) Debugger (Plugin) [?]
 -- (-) Mason LSP Config
 -- ( ) Fuzzy Finder (find file, find symbol)
 -- ( ) Plugin Maps (always WIP?)
--- ( ) Fold Functions (Native)
---
+-- (-) Fold Functions (Native)
+-- ( ) Debugger (Plugin)
 
 --
 -- Notes
---    
---
 --
 
---
--- TODO 
 --    
 --    Put plugin setups in after/ dir
 --
---    Add fuzzy finding / dir traversal support
+--    Add fuzzy finding / dir traversal support (Telescope VS FZF/Ag?)
 --
 --    Get a functional python environment (LSP)
 --    - Basic Lang (X)
@@ -38,10 +33,10 @@
 --    - Protobuf support
 --   
 --    Understand how lazy works:
---	 - how to optimize, how to lock deps
+--	   - how to optimize, how to lock deps
 --
---    Also, how
---	 - LuaSnips, Cmp 
+--    Also, how tf do ___ work?
+--	   - LuaSnips, Cmp 
 
 vim.g.mapleader = " " -- set map leader before plugin setup
 
@@ -90,35 +85,28 @@ local pluginStore = {
       lazy = true,
    },
    {'nvim-treesitter/nvim-treesitter-context'},
+   {'numToStr/Comment.nvim', lazy = false}, -- Comment Engine (LIFESAVER)
+   {'jiangmiao/auto-pairs'}, -- AC brackets -> save me that 1 extra keystroke
 
-   -- Comment Engine (LIFESAVER)
-   {'numToStr/Comment.nvim', lazy = false},
-
-   -- AC brackets -> save me that 1 extra keystroke
-   {'jiangmiao/auto-pairs'},
-
-   -- Snippet engine ( + needed for LSP, Cmp )
-   {'L3MON4D3/LuaSnip'},
-
-   -- Autocomplete engine
-   {'hrsh7th/nvim-cmp'},
-   -- Completion sources for LSP
-   {'hrsh7th/cmp-nvim-lsp'},
-   {'hrsh7th/cmp-buffer'},
-   {'hrsh7th/cmp-path'},
-   {'hrsh7th/cmp-cmdline'},
-   {'saadparwaiz1/cmp_luasnip'},
-
+   {'L3MON4D3/LuaSnip'}, -- Snippet engine ( + needed for LSP, Cmp )
+   {'hrsh7th/nvim-cmp', dependencies = {-- Autocomplete engine
+      {'hrsh7th/cmp-nvim-lsp'}, -- Completion sources for LSP
+      {'hrsh7th/cmp-buffer'},
+      {'hrsh7th/cmp-path'},
+      {'hrsh7th/cmp-cmdline'},
+      {'saadparwaiz1/cmp_luasnip'},
+   }},
    -- Mason (Really good)
    {
       'williamboman/mason.nvim',
       build = function()
-	 pcall(vim.cmd, 'MasonUpdate')
+         pcall(vim.cmd, 'MasonUpdate')
       end,
    },
    {'williamboman/mason-lspconfig.nvim'}, -- mason extension for lspconfig
 
    -- Themes
+   {'Shatur/neovim-ayu'},
    {'morhetz/gruvbox'},
    {'sainnhe/everforest'},
    {'rose-pine/neovim', name = 'rose-pine'},
@@ -157,38 +145,38 @@ local pluginStore = {
       -- Adds git related signs to the gutter, as well as utilities for managing changes
       'lewis6991/gitsigns.nvim',
       opts = {
-	 -- See `:help gitsigns.txt`
-	 signs = {
-	    add = { text = '+' },
-	    change = { text = '~' },
-	    delete = { text = '_' },
-	    topdelete = { text = '‾' },
-	    changedelete = { text = '~' },
-	 },
-	 on_attach = function(bufnr)
-	    vim.keymap.set('n', '<leader>hp', require('gitsigns').preview_hunk, { buffer = bufnr, desc = 'Preview git hunk' })
+         -- See `:help gitsigns.txt`
+         signs = {
+            add = { text = '+' },
+            change = { text = '~' },
+            delete = { text = '_' },
+            topdelete = { text = '‾' },
+            changedelete = { text = '~' },
+         },
+         on_attach = function(bufnr)
+            vim.keymap.set('n', '<leader>hp', require('gitsigns').preview_hunk, { buffer = bufnr, desc = 'Preview git hunk' })
 
-	    -- don't override the built-in and fugitive keymaps
-	    local gs = package.loaded.gitsigns
-	    vim.keymap.set({ 'n', 'v' }, ']c', function()
-	       if vim.wo.diff then
-		  return ']c'
-	       end
-	       vim.schedule(function()
-		  gs.next_hunk()
-	       end)
-	       return '<Ignore>'
-	    end, { expr = true, buffer = bufnr, desc = 'Jump to next hunk' })
-	    vim.keymap.set({ 'n', 'v' }, '[c', function()
-	       if vim.wo.diff then
-		  return '[c'
-	       end
-	       vim.schedule(function()
-		  gs.prev_hunk()
-	       end)
-	       return '<Ignore>'
-	    end, { expr = true, buffer = bufnr, desc = 'Jump to previous hunk' })
-	 end,
+            -- don't override the built-in and fugitive keymaps
+            local gs = package.loaded.gitsigns
+            vim.keymap.set({ 'n', 'v' }, ']c', function()
+               if vim.wo.diff then
+                  return ']c'
+               end
+               vim.schedule(function()
+                  gs.next_hunk()
+               end)
+               return '<Ignore>'
+            end, { expr = true, buffer = bufnr, desc = 'Jump to next hunk' })
+            vim.keymap.set({ 'n', 'v' }, '[c', function()
+               if vim.wo.diff then
+                  return '[c'
+               end
+               vim.schedule(function()
+                  gs.prev_hunk()
+               end)
+               return '<Ignore>'
+            end, { expr = true, buffer = bufnr, desc = 'Jump to previous hunk' })
+         end,
       },
    },
 }
