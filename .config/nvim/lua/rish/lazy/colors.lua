@@ -1,6 +1,9 @@
 return {
-	"Shatur/neovim-ayu",
+	-- "Shatur/neovim-ayu",
+   "ellisonleao/gruvbox.nvim",
 	config = function()
-		vim.cmd.colorscheme("ayu")
+		-- vim.cmd.colorscheme("ayu")
+      --
+		vim.cmd.colorscheme("gruvbox")
 	end
 }

@@ -6,9 +6,8 @@ local autocmd = vim.api.nvim_create_autocmd
 local augroup = vim.api.nvim_create_augroup
 
 local my_group = augroup('MyGroup', {})
-local yank_group = augroup('HighlightYank', {})
-
 local highlight_group = augroup('YankHighlight', { clear = true })
+
 autocmd('TextYankPost', {
    callback = function()
       vim.highlight.on_yank()
@@ -22,7 +21,7 @@ autocmd('LspAttach', {
    group = my_group,
    callback = function()
       local bufmap = function(mode, lhs, rhs)
-         vim.keymap.set(mode, lhs, rhs, {buffer = true})
+         vim.keymap.set(mode, lhs, rhs, { buffer = true })
       end
 
       bufmap('n', 'K', '<cmd>lua vim.lsp.buf.hover()<cr>')
@@ -33,7 +32,7 @@ autocmd('LspAttach', {
       bufmap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<cr>')
       bufmap('n', 'gs', '<cmd>lua vim.lsp.buf.signature_help()<cr>')
       bufmap('n', '<F2>', '<cmd>lua vim.lsp.buf.rename()<cr>')
-      bufmap({'n', 'x'}, '<F3>', '<cmd>lua vim.lsp.buf.format({async = true})<cr>')
+      bufmap({ 'n', 'x' }, '<F3>', '<cmd>lua vim.lsp.buf.format({async = true})<cr>')
       bufmap('n', 'gl', '<cmd>lua vim.diagnostic.open_float()<cr>')
       bufmap('n', '[d', '<cmd>lua vim.diagnostic.goto_prev()<cr>')
       bufmap('n', ']d', '<cmd>lua vim.diagnostic.goto_next()<cr>')
@@ -63,19 +62,42 @@ autocmd('LspAttach', {
 })
 
 -- Red RNUs ( after setting theme )
-vim.api.nvim_set_hl(0, 'LineNr', { fg = "Red"})
+vim.api.nvim_set_hl(0, 'LineNr', { fg = "LightRed" })
 
 -- Save and Load folds
-autocmd({"BufWinLeave"}, {
+autocmd({ "BufWinLeave" }, {
    group = my_group,
-   pattern = {"*.*"},
+   pattern = { "*.*" },
    desc = "save view (folds), when closing file",
    command = "mkview",
 })
-autocmd({"BufWinEnter"}, {
+autocmd({ "BufWinEnter" }, {
    group = my_group,
-   pattern = {"*.*"},
+   pattern = { "*.*" },
    desc = "load view (folds), when opening file",
    command = "silent! loadview"
 })
 
+autocmd("BufWritePre", {
+   group = my_group,
+   pattern = "*.go",
+   callback = function()
+      local params = vim.lsp.util.make_range_params()
+      params.context = { only = { "source.organizeImports" } }
+      -- buf_request_sync defaults to a 1000ms timeout. Depending on your
+      -- machine and codebase, you may want longer. Add an additional
+      -- argument after params if you find that you have to write the file
+      -- twice for changes to be saved.
+      -- E.g., vim.lsp.buf_request_sync(0, "textDocument/codeAction", params, 3000)
+      local result = vim.lsp.buf_request_sync(0, "textDocument/codeAction", params)
+      for cid, res in pairs(result or {}) do
+         for _, r in pairs(res.result or {}) do
+            if r.edit then
+               local enc = (vim.lsp.get_client_by_id(cid) or {}).offset_encoding or "utf-16"
+               vim.lsp.util.apply_workspace_edit(r.edit, enc)
+            end
+         end
+      end
+      vim.lsp.buf.format({ async = false })
+   end
+})

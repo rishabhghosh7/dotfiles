@@ -31,7 +31,7 @@ function M.config()
       },
       {
          type = 'go',
-         name = 'Debug Cureent Project',
+         name = 'Debug Current Project',
          request = 'launch',
          program = './${relativeFileDirname}',
       },
