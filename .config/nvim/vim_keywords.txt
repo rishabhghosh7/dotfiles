@@ -6,3 +6,8 @@ autocmds
 registers
 :g command
 ...and general stack-overflow magic
+
+Here is how to full screen a help in vim and pop back quick
+
+To full screen a help window in vim, use :help <topic> and then press F1
+
