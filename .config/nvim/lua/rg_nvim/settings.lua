@@ -1,4 +1,4 @@
--- -------------------------- OPTIONS -------------------------
+-- ------------------------------------------------------------[[ Setting Options ]]
 vim.o.rnu = true -- Default to relative line numbering
 vim.o.tabstop = 3
 vim.o.shiftwidth = 3
@@ -57,4 +57,11 @@ vim.opt.backup = false
 -- Red RNUs
 -- vim.api.nvim_set_hl(0, 'LineNr', { fg = "LightGrey"})
 
-vim.o.background="dark"
+-- ------------------------------------------------------------[[ Setting Keymaps ]]
+
+-- Navigation
+vim.keymap.set("n", "<leader>f", vim.cmd.Ex) -- netrw
+vim.keymap.set("n", "<Leader>b", ":buffers<CR>:buffer<Space>") -- quick peek buffers
+
+-- Change dir to current buffer's (Thanks Reddit)
+vim.keymap.set("n", "<leader>cd", ":cd %:p:h<CR>")
