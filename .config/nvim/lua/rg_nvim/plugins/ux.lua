@@ -21,6 +21,8 @@ return {
       "folke/noice.nvim",
       "MunifTanjim/nui.nvim",
       "rcarriga/nvim-notify",
+
+      "folke/trouble.nvim",
    },
    config = function()
       vim.cmd.colorscheme("everforest")
