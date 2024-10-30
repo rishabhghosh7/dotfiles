@@ -65,3 +65,13 @@ vim.keymap.set("n", "<Leader>b", ":buffers<CR>:buffer<Space>") -- quick peek buf
 
 -- Change dir to current buffer's (Thanks Reddit)
 vim.keymap.set("n", "<leader>cd", ":cd %:p:h<CR>")
+
+-- See `:help vim.highlight.on_yank()`
+local highlight_group = vim.api.nvim_create_augroup('YankHighlight', { clear = true })
+vim.api.nvim_create_autocmd('TextYankPost', {
+   callback = function()
+      vim.highlight.on_yank()
+   end,
+   group = highlight_group,
+   pattern = '*',
+})

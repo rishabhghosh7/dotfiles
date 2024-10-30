@@ -4,8 +4,11 @@ require("rg_nvim.lazy")
 require("rg_nvim.settings")
 
 local autocmd = vim.api.nvim_create_autocmd
+local augroup = vim.api.nvim_create_augroup
+local lsp_group = augroup('LspGroup', {})
+local my_group = augroup('RgGroup', {})
 autocmd('LspAttach', {
-   group = vim.api.nvim_create_augroup('MyGroup',{}),
+   group = lsp_group,
    callback = function()
       local bufmap = function(mode, lhs, rhs)
          vim.keymap.set(mode, lhs, rhs, { buffer = true })
@@ -46,4 +49,41 @@ autocmd('LspAttach', {
    --     vim.keymap.set("n", "[d", function() vim.diagnostic.goto_next() end, opts)
    --     vim.keymap.set("n", "]d", function() vim.diagnostic.goto_prev() end, opts)
    -- end
+})
+function AutoDarkColors()
+   local hour = os.date("*t").hour
+   if hour >= 18 or hour < 7 then
+      vim.opt.background = "dark"
+   else
+      vim.opt.background = "light"
+   end
+end
+
+AutoDarkColors()
+
+-- LSP Format on Buffer Write
+autocmd("LspAttach", {
+   group = lsp_group,
+   callback = function(args)
+      autocmd("BufWritePre", {
+         buffer = args.buf,
+         callback = function()
+            vim.lsp.buf.format { async = false, id = args.data.client_id }
+         end,
+      })
+   end
+})
+
+-- Save and Load folds
+autocmd({ "BufWinLeave" }, {
+   group = my_group,
+   pattern = { "*.*" },
+   desc = "save view (folds), when closing file",
+   command = "mkview",
+})
+autocmd({ "BufWinEnter" }, {
+   group = my_group,
+   pattern = { "*.*" },
+   desc = "load view (folds), when opening file",
+   command = "silent! loadview"
 })
